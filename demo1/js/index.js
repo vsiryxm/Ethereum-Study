@@ -97,7 +97,7 @@ $(function() {
 		console.info(web3.version.api);
 		console.info(web3.currentProvider);
 		
-		web3.eth.coinbase = web3.eth.accounts[0];
+		//web3.eth.coinbase = web3.eth.accounts[0];
 		console.info(web3.eth.coinbase);
 
 		//输出当前的账号
@@ -133,6 +133,7 @@ $(function() {
 			if(!error) {
 				console.info('SUCCESS');
 				console.info(result);
+				alert('提交成功！');
 			} else {
 				console.info('FAIL');
 				console.info(error);
@@ -142,9 +143,13 @@ $(function() {
 	
 	//读取链上信息
 	$('#btnQuery').on('click', function() {
+		$('#show').addClass('hidden');
 		contractInstance.getInfo(function(error, result) {
 			console.info('-----------输出查询结果-----------');
 			if(!error) {
+				$('#show').removeClass('hidden');
+				$('#theName').html(result[0]);
+				$('#theAge').html(result[1].c);
 				console.info('SUCCESS');
 				console.info(result);
 			} else {

@@ -6,3 +6,6 @@ html,body,table,td {
 	font:14px 'Microsoft Yahei';
 }
 
+.hidden {
+	display: none;
+}
