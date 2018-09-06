@@ -1,0 +1,8 @@
+/* CSS Document */
+@charset "UTF-8";
+html,body,table,td {
+	margin: 0 auto;
+	padding: 0;
+	font:14px 'Microsoft Yahei';
+}
+
