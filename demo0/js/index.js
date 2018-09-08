@@ -53,5 +53,17 @@ $(function() {
 			}
 		});
 	}
+
+	web3.eth.getAccounts(function (error, accounts) {
+		console.info('-----------输出钱包是否锁定-----------');
+		console.log(web3.eth.defaultAccount);
+		if (accounts.length == 0) {
+			$("#wallet").html('是');
+			console.info('钱包已锁定');
+		} else {
+			$("#wallet").html("否");
+			console.info('钱包已打开');
+		}		
+	});
 	
 });
