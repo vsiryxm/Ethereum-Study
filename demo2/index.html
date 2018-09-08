@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Demo1</title>
+<link rel="stylesheet" type="text/css" href="css/index.css">
+</head>
+
+<body><br><br><br>
+<table width="400" border="1" align="center">
+  <tbody>
+    <tr height="35">
+      <td>&nbsp;姓名：</td>
+      <td>&nbsp;<input id="name" type="text" value="" maxlength="50"></td>
+    </tr>
+    <tr height="35">
+      <td>&nbsp;年龄：</td>
+      <td>&nbsp;<input id="age" type="number" value="" maxlength="10"></td>
+    </tr>
+    <tr height="40">
+      <td>&nbsp;</td>
+      <td>&nbsp;<input id="btnSubmit" type="button" value="提交" >&nbsp;&nbsp;&nbsp;&nbsp;<input id="btnQuery" type="button" value="查询" ></td>
+    </tr>
+    <tr height="40" id="show" class="hidden">
+      <td>&nbsp;</td>
+		<td>&nbsp;结果：姓名：<span id="theName"></span> 年龄：<span id="theAge"></span></td>
+    </tr>
+  </tbody>
+</table>
+<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"></script>
+<!--<script src="https://cdn.rawgit.com/ethereum/web3.js/develop/dist/web3.js"></script>需要科学上网才能访问-->
+<script src="./js/web3.js"></script>
+<script src="./js/index.js"></script>
+</body>
+</html>
