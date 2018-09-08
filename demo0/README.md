@@ -52,7 +52,7 @@ web3.version.getNetwork((error, netId) => {
 		});
 ```
 
-### 二、获取当前钱包是否打开
+### 三、获取当前钱包是否打开
 
 ```
 web3.eth.getAccounts(function (error, accounts) {
