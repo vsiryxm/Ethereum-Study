@@ -108,7 +108,9 @@ contractInstance.getInfo(function(error, result) {
     }
 });
 ```
+
 或者直接读取状态变量的值：
+
 ```
 contractInstance.name(function(error, result) {
     console.info('-----------输出查询结果-----------');
