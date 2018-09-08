@@ -1,10 +1,8 @@
-## 手把手教你开发以太坊DAPP
+## 监听合约事件DEMO
 
 ### 知识点
 
-- 使用web3.js连接以太坊测试网络
-- 将数据保存到以太坊区块链
-- 获取以太坊区块链上数据
+- .watch()监听方法
 
 ### 一、部署合约到以太坊测试网络
 合约示例代码：
@@ -15,10 +13,15 @@ contract InfoContract {
     
     string public name;
     uint public age;
+
+    //定义事件
+    event SetInfo(string name, uint age);
     
     function setInfo(string _name, uint _age) public {
         name = _name;
         age = _age;
+        //调用事件
+        emit SetInfo(_name, _age);
     }
     
     function getInfo() public view returns(string, uint) {
@@ -63,15 +66,15 @@ if (typeof web3 !== 'undefined') {
 1、导入合约ABI
 复制ABI，将ABI压缩成一行，[点击去压缩>>](http://www.bejson.com/zhuanyi/)
 ```
-[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"getInfo","outputs":[{"name":"","type":"string"},{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"age","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"string"},{"name":"_age","type":"uint256"}],"name":"setInfo","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}]
+[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"getInfo","outputs":[{"name":"","type":"string"},{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"age","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"anonymous":false,"inputs":[{"indexed":false,"name":"name","type":"string"},{"indexed":false,"name":"age","type":"uint256"}],"name":"SetInfo","type":"event"},{"constant":false,"inputs":[{"name":"_name","type":"string"},{"name":"_age","type":"uint256"}],"name":"setInfo","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}]
 ```
 2、实例化合约
 ```
-var abi = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"getInfo","outputs":[{"name":"","type":"string"},{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"age","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"string"},{"name":"_age","type":"uint256"}],"name":"setInfo","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}];
+var abi = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"getInfo","outputs":[{"name":"","type":"string"},{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"age","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"anonymous":false,"inputs":[{"indexed":false,"name":"name","type":"string"},{"indexed":false,"name":"age","type":"uint256"}],"name":"SetInfo","type":"event"},{"constant":false,"inputs":[{"name":"_name","type":"string"},{"name":"_age","type":"uint256"}],"name":"setInfo","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}];
 var myContract = web3.eth.contract(abi); //JSON.parse(abi)
 contractInstance = myContract.at(contract);
 console.info('-----------输出合约对象-----------');
-console.info(contractInstance);
+console.dir(contractInstance);
 ```
 
 ### 三、调用合约方法
@@ -92,37 +95,23 @@ contractInstance.setInfo(name, age, function(error, result) {
 });
 ```
 
-2、读取链上数据
+2、监听事件
 
 ```
-contractInstance.getInfo(function(error, result) {
-    console.info('-----------输出查询结果-----------');
+var setInfoEvent = contractInstance.SetInfo();
+setInfoEvent.watch(function(error, result) {
     if(!error) {
+        console.info('-----------监听日志信息-----------');
         console.info('SUCCESS');
-        console.info(result);
-        console.info(result[0]);
-        console.info(result.c);
+        console.info(result.args.name);
+        console.info(result.args.age.c);
     } else {
         console.info('FAIL');
-        console.error(error);
+        console.info(error);
     }
 });
 ```
 
-或者直接读取状态变量的值：
-
-```
-contractInstance.name(function(error, result) {
-    console.info('-----------输出查询结果-----------');
-    if(!error) {
-        console.info('SUCCESS');
-        console.info(result);
-    } else {
-        console.info('FAIL');
-        console.error(error);
-    }
-});
-```
 
 
 
