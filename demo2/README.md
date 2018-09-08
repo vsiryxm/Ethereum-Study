@@ -38,11 +38,13 @@ contract InfoContract {
 - 0.20 稳定版 
 `<script src="https://cdn.rawgit.com/ethereum/web3.js/develop/dist/web3.js"></script>`
 - 1.0 测试版
-`<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"></script>`
+`<script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"></script>`
 
 1.0测试版引入Promise，简化异步编程，将异步操作以同步操作的流程表达出来，避免层层嵌套的回调。
 代码比0.02简洁得多，但目前没有稳定版本
 建议使用0.20稳定版，支持ES5语法
+
+版本查询：https://cdn.jsdelivr.net/gh/ethereum/web3.js/
 
 2、连接提供者：
 - infura
