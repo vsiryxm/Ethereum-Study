@@ -52,7 +52,19 @@ web3.version.getNetwork((error, netId) => {
 		});
 ```
 
+### 二、获取当前钱包是否打开
 
+```
+web3.eth.getAccounts(function (error, accounts) {
+		console.info('-----------输出钱包是否锁定-----------');
+		console.log(web3.eth.defaultAccount);
+		if (accounts.length == 0) {
+			console.info('钱包已锁定');
+		} else {
+			console.info('钱包已打开');
+		}		
+	});
+```
 
 
 
