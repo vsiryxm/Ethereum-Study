@@ -82,7 +82,7 @@ $(function() {
 			web3 = new Web3(web3.currentProvider);
 		} else {
 			//web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/q7e6gTMRPm7mtLpodlSD"));
-			web3 = new Web3(new Web3.providers.HttpProvider("HTTP://192.168.60.162:7545"));
+			web3 = new Web3(new Web3.providers.HttpProvider("HTTP://192.168.1.108:7545"));
 		}
 	}
 	
@@ -108,7 +108,8 @@ $(function() {
 		var myContract = web3.eth.contract(abi); //JSON.parse(abi)
 		contractInstance = myContract.at(contract);
 		console.info('-----------输出合约对象-----------');
-		console.info(contractInstance);
+		//输出合约所有函数和事件
+		console.dir(contractInstance);
 	}
 	
 	//提交上链

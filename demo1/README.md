@@ -58,7 +58,7 @@ if (typeof web3 !== 'undefined') {
 ```
 
 
-### 二、创建合约对象
+### 三、创建合约对象
 
 1、导入合约ABI
 复制ABI，将ABI压缩成一行，[点击去压缩>>](http://www.bejson.com/zhuanyi/)
@@ -74,7 +74,7 @@ console.info('-----------输出合约对象-----------');
 console.info(contractInstance);
 ```
 
-### 三、调用合约方法
+### 四、调用合约方法
 
 1、数据上链
 
@@ -113,7 +113,7 @@ contractInstance.getInfo(function(error, result) {
 
 ```
 contractInstance.name(function(error, result) {
-    console.info('-----------输出查询结果-----------');
+    console.info('-----------输出状态变量结果-----------');
     if(!error) {
         console.info('SUCCESS');
         console.info(result);
