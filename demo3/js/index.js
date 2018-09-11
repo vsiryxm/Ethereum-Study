@@ -7,7 +7,8 @@ $(function() {
 		// Checking if Web3 has been injected by the browser (Mist/MetaMask)
 		if (typeof web3 !== 'undefined') {
 		  // Use Mist/MetaMask's provider
-		  window.web3 = new Web3(web3.currentProvider);
+		  //window.web3 = new Web3(web3.currentProvider);
+		  window.web3 = web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/q7e6gTMRPm7mtLpodlSD"));
 		} else {
 		  console.log('No web3? You should consider trying MetaMask!')
 		  // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
@@ -38,6 +39,19 @@ $(function() {
 		getCode(); //获取合约的字节码
 		getBlock(); //获取指定编号或哈希的块信息
 		getBlockTransactionCount(); //获取指定区块的交易数量
+		getUncle(); //获取叔块信息
+		getTransaction(); //获取交易hash对应的交易
+		getTransactionFromBlock(); //获取区块中的某一笔交易详情，与getTransaction是一样的效果
+		getTransactionReceipt(); //获取一个交易的收据，与getTransaction、getTransactionFromBlock比较，多了合约相关字段，如合约地址contractAddress
+		getTransactionCount(); //获得指定地址发起的交易数（支出的交易）
+		//sendTransaction();
+		//sendContractTransaction();
+		//signData(); //使用指定帐户签名要发送的数据，帐户需要处于解锁状态
+		sha3(); //使用sha3（keccak-256）哈希算法，计算给定字符串的哈希值。交易哈希就是这么来的，66位
+
+		toBigNumber(); //转换一个数字为BigNumber的实例
+		isAddress(); //检查给定的字符串是否是有效的以太坊地址
+
 	}
 	
 	//获取当前网络ID，并根据ID来判断当前连接的是什么网络
@@ -277,8 +291,8 @@ $(function() {
 	//获取指定编号或哈希的块信息
 	//块信息包括：前一个区块的哈希、挖矿难度值、挖矿节点名、区块时间戳、gasLimit、gasUsed等
 	function getBlock() {
-		//块编号或哈希值，或者字符串常量："earliest"、"latest" 、 "pending".
-		var blockHashOrNumber = '0x36bc9d5c69c3db7a87de09f734c4d2f364875a7590b0e657ec5527a72f1098e5';
+		//块编号或哈希值，或者字符串常量："earliest"（创世块）、"latest"（最新已打包块） 、 "pending"（最新打包中的块）. 
+		var blockHashOrNumber = 'latest';
 		//var blockHashOrNumber = '5'; //用区块号，同样的效果
 		if (blockHashOrNumber != null && blockHashOrNumber.length > 0) {
 			web3.eth.getBlock(blockHashOrNumber, (error, result) => {
@@ -294,8 +308,8 @@ $(function() {
 
 	//获取指定区块的交易数量
 	function getBlockTransactionCount() {
-		//块编号或哈希值，或者字符串常量："earliest"、"latest" 、 "pending".
-		var blockHashOrNumber = '5';
+		//块编号或哈希值，或者字符串常量："earliest"（创世块）、"latest"（最新已打包块） 、 "pending"（最新打包中的块）. 
+		var blockHashOrNumber = '2964325';
 		if (blockHashOrNumber != null && blockHashOrNumber.length > 0) {
 			web3.eth.getBlockTransactionCount(blockHashOrNumber, (error, result) => {
 				console.info('-----------获取指定区块的交易数量-----------');
@@ -309,33 +323,332 @@ $(function() {
 		}
 	}
 
-	//获取叔伯块信息 web3.eth.getBlock()
-	function showBlocksUncle() {
+	//获取叔块信息
+	//例子：切换到主网，访问https://etherscan.io/block/21456
+	function getUncle() {
 		var blockHashOrNumber = "latest";
-		var uncleIndex = document.getElementById('uncleIndex').value;
-		if (blockHashOrNumber != null && blockHashOrNumber.length > 0 &&
-		  uncleIndex != null && uncleIndex.length > 0
-		) {
-			
+		var uncleIndex = 0;
+		if (blockHashOrNumber != null && blockHashOrNumber.length > 0 && uncleIndex != null ) {
+			web3.eth.getUncle(blockHashOrNumber, uncleIndex, (error, result) => {
+			console.info('-----------获取叔块信息-----------');
+			if (!error) {
+				console.info(parseResultObject(result));
+			} else {
+				console.info(parseResultObject(error));
+			}
+		  })
+		}
+	}
 
-		  web3.eth.getUncle(blockHashOrNumber, uncleIndex, (err, res) => {
+	//获取交易hash对应的交易
+	//如：https://rinkeby.etherscan.io/tx/0xbadf6dccbcf5255ba3c91105a6eb5a4fbafd5a12b85cccf4dfe0914d895d09fe
+	function getTransaction() {
+		var transactionHash = '0x62a220b4fa9a6ab04a29b24f29d6b414796100bbd134a11f0ef725f9219335ce';	  
+		if (transactionHash != null && transactionHash.length > 0) {
+			web3.eth.getTransaction(transactionHash, (error, result) => {
+			console.info('-----------获取交易hash对应的交易-----------');
+			if (!error) {
+				console.info(parseResultObject(result));
+			} else {
+				console.info(error);
+			}
+			})
+		}
+	}
+
+	//获取区块中的某一笔交易详情
+	//如：https://rinkeby.etherscan.io/txs?block=2964454 倒数第1笔交易即transactionIndex=0
+	function getTransactionFromBlock() {
+		var blockHashOrNumber = '2964454';
+		var transactionIndex = '0';
+		
+		if (blockHashOrNumber != null && blockHashOrNumber.length > 0 &&
+			transactionIndex != null && transactionIndex.length > 0) {
+			web3.eth.getTransactionFromBlock(blockHashOrNumber, transactionIndex, (error, result) => {
+				console.info('-----------获取区块中的某一笔交易详情-----------');
+				if (!error) {
+					console.info(parseResultObject(result));
+				} else {
+					console.info(error);
+				}
+			})
+		}
+	}
+
+	//获取一个交易的收据
+	//https://rinkeby.etherscan.io/tx/0xbadf6dccbcf5255ba3c91105a6eb5a4fbafd5a12b85cccf4dfe0914d895d09fe
+	//与getTransaction、getTransactionFromBlock比较，多了合约相关字段，如合约地址contractAddress
+	function getTransactionReceipt() {
+		var transactionHash = '0x62a220b4fa9a6ab04a29b24f29d6b414796100bbd134a11f0ef725f9219335ce';
+		
+		if (transactionHash != null) {
+			web3.eth.getTransactionReceipt(transactionHash, (err, res) => {
+			console.info('-----------获取一个交易的收据-----------');
 			var output = "";
 			if (!err) {
-			  output += parseResultObject(res);
+				console.info(res);
+			} else {
+				console.info(err);
+			}
+			});
+		}
+	}
+
+	//获得指定地址发起的交易数（支出的交易）
+	//如：https://etherscan.io/address/0x0266F961906e34af20b185749Bf0f87066741a25
+	function getTransactionCount() {
+		var address = '0x0266F961906e34af20b185749Bf0f87066741a25';
+	  
+		if (address != null && address.length > 0) {
+		  web3.eth.getTransactionCount(address, (err, res) => {
+			console.info('-----------获得指定地址发起的交易数（支出的交易）-----------');
+			var output = "";
+			if (!err) {
+			  output += res;
 			} else {
 			  output = "Error";
 			}
-			document.getElementById('blocksUncle').innerHTML = "Blocks uncle= " + output + "<br />";
+			console.info(output);
+		  })
+		}
+	  }
+
+	  function sendTransaction() {
+		
+		var fromAccount = '0xd134dd2a3c16fb12885cd6fdc8a03d4bbe5d7031';
+		var toAccount = '0xfacd69a6df3265ddf3f60a868d3b0086feb1597e';
+		var amount = 1000000000000000; //0.01 ether
+	  
+		// Use for example 2
+		var gas = "35000";
+		var gasPrice = "21000000000";
+	  
+	  // Use for example 2
+		if (fromAccount != null &&
+			toAccount != null && 
+			amount != null &&
+			gas != null &&
+			gasPrice != null
+		) {
+		  // Example 1: Using the default MetaMask gas and gasPrice
+		  var message = {from: fromAccount, to:toAccount, value: web3.toWei(amount, 'ether')};
+	  
+		  // Example 2: Setting gas and gasPrice
+		  //var message = {from: fromAccount, to:toAccount, value: web3.toWei(amount, 'ether'), gas: gas, gasPrice: gasPrice};
+	  
+		  // Example 3: Using the default account
+		  //web3.eth.defaultAccount = fromAccount;
+		  //var message = {to:toAccount, value: web3.toWei(amount, 'ether')};
+	  
+		  web3.eth.sendTransaction(message, (err, res) => {
+			console.info('-----------发送交易-----------');
+			console.info(err);
+			console.info(res);
+			var output = "";
+			if (!err) {
+			  output += res;
+			} else {
+			  output = "Error";
+			}
+			console.info(output);
+		  })
+		}
+	  }
+
+	  //使用指定帐户签名要发送的数据，帐户需要处于解锁状态。
+	  function sendContractTransaction() {
+		var fromAccount = document.getElementById('fromAccount2').value;
+		var byteCode = document.getElementById('byteCode').value;
+	  
+		if (fromAccount != null && fromAccount.length > 0 &&
+			byteCode != null && byteCode.length > 0
+		) {
+		  //var data = {from: fromAccount, to:toAccount, value: web3.toWei(amount, 'ether'), gasLimit: gasLimit, gasPrice: gasPrice};
+		  var message = {from: fromAccount, data:byteCode.trim()};
+	  
+		  web3.eth.sendTransaction(message, (err, res) => {
+			var output = "";
+			if (!err) {
+			  output += res;
+			} else {
+			  output = "Error";
+			}
+			document.getElementById('transactionResponse2').innerHTML = "Contract transaction response= " + output + "<br />";
 		  })
 		}
 	  }
 
 
 
+	  //使用指定帐户签名要发送的数据，帐户需要处于解锁状态
+	  function signData() {
+		var fromAccount = '0xd134dd2a3c16fb12885cd6fdc8a03d4bbe5d7031';
+		var dataToSign = 'Hello Simon!';
+	  
+		if (fromAccount != null &&
+			dataToSign != null 
+		) {
+		  var encryptedMessage = web3.sha3(dataToSign);
+	  
+		  web3.eth.sign(fromAccount, encryptedMessage, (err, res) => {
 
+			console.info('-----------使用指定帐户签名要发送的数据，帐户需要处于解锁状态-----------');
 
+			var output = "";
+			var rValue = "";
+			var sValue = "";
+			var vValue = "";
+	  
+			if (!err) {
+			  output += res;
+			  var r = res.slice(0, 66);
+			  var s = '0x' + res.slice(66, 130);
+			  var v = '0x' + res.slice(130, 132)
+			  v = web3.toDecimal(v)
+	  
+			  // Using ethereumjs-util.js
+			  var msg = EthJS.Util.toBuffer(encryptedMessage);
+			  var pub = EthJS.Util.ecrecover(msg, v, r, s);
+			  var addrBuf = EthJS.Util.pubToAddress(pub);
+			  var addr    = EthJS.Util.bufferToHex(addrBuf);
+	  
+			} else {
+			  output = "Error";
+			}
+			console.info('sig='+output);
+			console.info('r = sig.slice(0, 66) ='+r);
+			console.info("s = '0x' + sig.slice(66, 130) = " + s );
+			console.info("v = '0x' + sig.slice(130, 132)\n v = web3.toDecimal(v) = " + v);
+			console.info("pubKey = ecrecover(msg, v, r, s) = " + addr);
 
+		  })
+		}
+	  }
 
+	  //使用sha3（keccak-256）哈希算法，计算给定字符串的哈希值。交易哈希就是这么来的，66位
+	  function sha3() {
+		var dataToHash = "Hello Simon!";
+		var encoding = "hex";//是否编码，no不编码，hex则编码
+	  
+		var output="";
+		if (dataToHash != null) {
+		  if(encoding == "hex") {
+			output = web3.sha3(dataToHash, {encoding: 'hex'});
+		  } else {
+			output = web3.sha3(dataToHash);
+		  }
+		  console.info('-----------使用sha3（keccak-256）哈希算法，计算给定字符串的哈希值-----------');
+		  console.info('sha3=' + output);
+		}
+	  }
+	  
+	  function toHex() {
+		var dataToHex = document.getElementById('dataToHex').value;
+		var output="";
+		if (dataToHex != null && dataToHex.length > 0) {
+		  output = web3.toHex(dataToHex);
+		  document.getElementById('toHexResponse').innerHTML = "<br /> toHex= " + output + "<br /><br />";
+		}
+	  }
+	  
+	  function hexToASCII() {
+		var hexString = document.getElementById('hexString').value;
+		var output="";
+		if (hexString != null && hexString.length > 0) {
+		  output = web3.toAscii(hexString);
+		  document.getElementById('toASCIIResponse').innerHTML = "<br /> toASCII= " + output + "<br /><br />";
+		}
+	  }
+	  
+	  function fromASCII() {
+		var asciiString = document.getElementById('asciiString').value;
+		var numberOfBytes = document.getElementById('numberOfBytes').value;
+	  
+		var output="";
+		if (asciiString != null && asciiString.length > 0 && !isNaN(numberOfBytes)) {
+		  var padding = parseInt(numberOfBytes);
+	  
+		  if(padding > 0) {
+			output = web3.fromAscii(asciiString, padding);
+		  } else {
+			output = web3.fromAscii(asciiString);
+		  }
+	  
+		  document.getElementById('fromASCIIResponse').innerHTML = "<br /> hex string= " + output + "<br /><br />";
+		}
+	  }
+	  
+	  function toDecimal() {
+		var hexToNumber = document.getElementById('hexToNumber').value;
+		var output="";
+		if (hexToNumber != null && hexToNumber.length > 0) {
+		  output = web3.toDecimal(hexToNumber);
+		  document.getElementById('toDecimalResponse').innerHTML = "<br /> decimal= " + output + "<br /><br />";
+		}
+	  }
+	  
+	  function fromDecimal() {
+		var numberToHex = document.getElementById('numberToHex').value;
+		var output="";
+		if (numberToHex != null && numberToHex.length > 0) {
+		  output = web3.fromDecimal(numberToHex);
+		  document.getElementById('fromDecimalResponse').innerHTML = "<br /> hex= " + output + "<br /><br />";
+		}
+	  }
+	  
+	  function fromWei() {
+		var numberOfWei = document.getElementById('numberOfWei').value;
+		var etherUnit = document.getElementById('etherUnit').value;
+	  
+		var output="";
+		if (numberOfWei != null && numberOfWei.length > 0 && !isNaN(numberOfWei)) {
+		  output = web3.fromWei(numberOfWei,etherUnit);
+		  document.getElementById('fromWeiResponse').innerHTML = "<br /> "+etherUnit+"= " + output + "<br /><br />";
+		}
+	  }
+	  
+	  function toWei() {
+		var numberOfEthereumUnit = document.getElementById('numberOfEthereumUnit').value;
+		var etherUnit = document.getElementById('etherUnit2').value;
+	  
+		var output="";
+		if (numberOfEthereumUnit != null && numberOfEthereumUnit.length > 0 && !isNaN(numberOfEthereumUnit)) {
+		  output = web3.toWei(numberOfEthereumUnit,etherUnit);
+		  document.getElementById('toWeiResponse').innerHTML = "<br /> wei= " + output + "<br /><br />";
+		}
+	  }
+	  
+	  //转换一个数字为BigNumber的实例
+	  function toBigNumber() {
+		var numberToBigNumber = 200000000000000000000001;
+		var output="";
+		console.info('-----------转换一个数字为BigNumber的实例-----------');
+		if (numberToBigNumber != null && !isNaN(numberToBigNumber)) {
+		  output = web3.toBigNumber(numberToBigNumber);
+		  console.info("A BigNumber = " + output.toString(10));
+		  console.log(output.toNumber()); // 2.0000000000000002e+23
+		  console.log(output.toString(10)); // '200000000000000000000001'
+		}
+	  }
+	  
+	  //检查给定的字符串是否是有效的以太坊地址
+	  function isAddress() {
+		var hexAddress = '0x0266f961906e34af20b185749bf0f87066741a25';
+		var output="";
+		if (hexAddress != null) {
+		  output = web3.isAddress(hexAddress);
+		  console.info('-----------检查给定的字符串是否是有效的以太坊地址-----------');
+		  console.info("Is an address ="+output);
+		}
+	  }
+	  
+	  function setDefaultAccount(){
+		var defaultAccount = document.getElementById('defaultAccount').value;
+		if (defaultAccount != null && web3.isAddress(defaultAccount)) {
+		  web3.eth.defaultAccount = defaultAccount;
+		  document.getElementById('displayDefaultAccount').innerHTML = "Default account is now: " +web3.eth.defaultAccount;
+		}
+	  }
 
 	  
 	  function parseResultObject(res){
