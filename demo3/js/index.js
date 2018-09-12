@@ -7,7 +7,7 @@ $(function() {
 		// Checking if Web3 has been injected by the browser (Mist/MetaMask)
 		if (typeof web3 !== 'undefined') {
 		  // Use Mist/MetaMask's provider
-		  //window.web3 = new Web3(web3.currentProvider);
+		  window.web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/q7e6gTMRPm7mtLpodlSD"));
 		} else {
 		  console.log('No web3? You should consider trying MetaMask!')
 		  // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
@@ -44,7 +44,7 @@ $(function() {
 		getTransactionFromBlock(); //获取区块中的某一笔交易详情，与getTransaction是一样的效果
 		getTransactionReceipt(); //获取一个交易的收据，与getTransaction、getTransactionFromBlock比较，多了合约相关字段，如合约地址contractAddress
 		getTransactionCount(); //获得指定地址发起的交易数（支出的交易）
-		//sendTransaction();
+		sendTransaction();
 		//sendContractTransaction();
 		//signData(); //使用指定帐户签名要发送的数据，帐户需要处于解锁状态
 		sha3(); //使用sha3（keccak-256）哈希算法，计算给定字符串的哈希值。交易哈希就是这么来的，66位
@@ -118,7 +118,7 @@ $(function() {
 			}
 		});
 	}
-	
+
 	//检查web3是否连接到以太坊节点
 	function isConnected() {
 		console.info('-----------检查web3是否连接到以太坊节点-----------');
@@ -282,7 +282,7 @@ $(function() {
 			}
 		});	
 	}
-	
+
 	//获取合约的字节码
 	function getCode() {
 		var contractAddress = '0x1ecf80acb80b0f9b8844039a0d360de3fa0a4f29';
@@ -344,7 +344,7 @@ $(function() {
 			} else {
 				console.info(parseResultObject(error));
 			}
-		  })
+			})
 		}
 	}
 
@@ -422,25 +422,61 @@ $(function() {
 	  }
 
 	  function sendTransaction() {
-		
-		var fromAccount = '0xd134dd2a3c16fb12885cd6fdc8a03d4bbe5d7031';
-		var toAccount = '0xfacd69a6df3265ddf3f60a868d3b0086feb1597e';
-		var amount = 1000000000000000; //0.01 ether
+		var fromAccount = "0xd134dd2a3c16fb12885cd6fdc8a03d4bbe5d7031";
+		var toAccount = "0xfacd69a6df3265ddf3f60a868d3b0086feb1597e";
+		var amount = 0.0001;
 	  
 		// Use for example 2
 		var gas = "35000";
 		var gasPrice = "21000000000";
 	  
 	  // Use for example 2
-		if (fromAccount != null &&
-			toAccount != null && 
-			amount != null &&
-			gas != null &&
-			gasPrice != null
+		if (fromAccount != null  &&
+			toAccount != null  &&
+			amount != null && 
+			gas != null && 
+			gasPrice != null 
 		) {
 		  // Example 1: Using the default MetaMask gas and gasPrice
-		  var message = {from: fromAccount, to:toAccount, value: web3.toWei(amount, 'ether')};
+		  //var message = {from: fromAccount, to:toAccount, value: web3.toWei(amount, 'ether')};
 	  
+		  // Example 2: Setting gas and gasPrice
+		  //var message = {from: fromAccount, to:toAccount, value: web3.toWei(amount, 'ether'), gas: gas, gasPrice: gasPrice};
+	  
+		  // Example 3: Using the default account
+		  web3.eth.defaultAccount = fromAccount;
+		  var message = {to:toAccount, value: web3.toWei(amount, 'ether')};
+	  
+		  web3.eth.sendTransaction(message, (err, res) => {
+			console.info('-----------发送交易666666-----------');
+			var output = "";
+			if (!err) {
+			  output += res;
+			} else {
+			  output = "Error";
+			}
+			console.info("Transaction response= " + output);
+		  });
+		}
+	  }
+
+	  function sendTransaction22() {
+		
+		var fromAccount = '0xd134dd2a3c16fb12885cd6fdc8a03d4bbe5d7031';
+		var toAccount = '0xfacd69a6df3265ddf3f60a868d3b0086feb1597e';
+		var amount = 0.0001; //ether 100000000000000
+		                             100000000000000
+	  
+		// Use for example 2
+		var gas = "35000";
+		var gasPrice = "21000000000";
+	  
+	  // Use for example 2
+		if (fromAccount != null && toAccount != null && amount != null && gas != null && gasPrice != null) {
+		  // Example 1: Using the default MetaMask gas and gasPrice
+		  var message = {from: fromAccount, to:toAccount, value: web3.toWei(amount, 'ether')};
+		  console.info('--------------------发送交易00---------------------');
+		  console.info(message);
 		  // Example 2: Setting gas and gasPrice
 		  //var message = {from: fromAccount, to:toAccount, value: web3.toWei(amount, 'ether'), gas: gas, gasPrice: gasPrice};
 	  
@@ -449,7 +485,7 @@ $(function() {
 		  //var message = {to:toAccount, value: web3.toWei(amount, 'ether')};
 	  
 		  web3.eth.sendTransaction(message, (err, res) => {
-			console.info('-----------发送交易-----------');
+			console.info('-----------发送交易11-----------');
 			console.info(err);
 			console.info(res);
 			var output = "";
@@ -487,15 +523,15 @@ $(function() {
 	  }
 
 
-	  //使用指定帐户签名要发送的数据，帐户需要处于解锁状态
-	  function signData() {
+		//使用指定帐户签名要发送的数据，帐户需要处于解锁状态
+		function signData() {
 			var fromAccount = '0xd134dd2a3c16fb12885cd6fdc8a03d4bbe5d7031';
 			var dataToSign = 'Hello Simon!';
-	  
+
 			if (fromAccount != null && dataToSign != null) {
-		  	var encryptedMessage = web3.sha3(dataToSign);
-	  
-		  	web3.eth.sign(fromAccount, encryptedMessage, (err, res) => {
+			var encryptedMessage = web3.sha3(dataToSign);
+
+			web3.eth.sign(fromAccount, encryptedMessage, (err, res) => {
 
 					console.info('-----------使用指定帐户签名要发送的数据，帐户需要处于解锁状态-----------');
 
@@ -503,7 +539,7 @@ $(function() {
 					var rValue = "";
 					var sValue = "";
 					var vValue = "";
-	  
+
 					if (!err) {
 						output += res;
 						var r = res.slice(0, 66);
@@ -525,15 +561,15 @@ $(function() {
 					console.info("s = '0x' + sig.slice(66, 130) = " + s );
 					console.info("v = '0x' + sig.slice(130, 132)\n v = web3.toDecimal(v) = " + v);
 					console.info("pubKey = ecrecover(msg, v, r, s) = " + addr);
-		  	});
+			});
 			}
-	  }
+		}
 
 		//使用sha3（keccak-256）哈希算法，计算给定字符串的哈希值。交易哈希就是这么来的，66位
 		//Hello Simon!
 		//sha3=0x5037e1a5e02e081b1b850b130eca7ac17335fdf4c61cc5ff6ae765196fb0d5b3 使用hex 
 		//sha3=0xef82a5fff3a5526183e7c925d562e5faf53a8a1be84dd35facff147fc6966d3d 没有使用hex
-	  function sha3() {
+		function sha3() {
 			var dataToHash = "Hello Simon!";
 			var encoding = "hex"; //是否编码，no不编码，hex则编码
 
@@ -545,28 +581,28 @@ $(function() {
 					console.info('sha3=' + web3.sha3(dataToHash));
 				}
 			}
-	  }
-		
+		}
+
 		//将字符串转换成Hex值，与hexToASCII是一对，toHex与fromAscii有点类似，但fromAscii可以填充0到多少位
-	  function toHex() {
+		function toHex() {
 			var dataToHex = 'Hello,Simon!';
 			if (dataToHex != null) {
 				console.info('-----------将字符串转换成Hex值-----------');
 				console.info(web3.toHex(dataToHex));
 			}
-	  }
-		
+		}
+
 		//将HEX字符串转为ASCII字符串，与toHex是一对
-	  function toAscii() {
+		function toAscii() {
 			var hexString = '0x48656c6c6f2c53696d6f6e21';
 			if (hexString != null) {
 				console.info('-----------将HEX字符串转为ASCII字符串-----------');
 				console.info(web3.toAscii(hexString));
 			}
-	  }
-		
+		}
+
 		//将任何的ASCII码字符串转为HEX字符串，fromAscii与toHex有点类似，但fromAscii可以填充0到多少位
-	  function fromAscii() {
+		function fromAscii() {
 			var asciiString = 'Hello,Simon!'; //试了一下，如果这里是'21'，转过来的结果是0x3231，而不是fromDecimal返回的0x15
 			var numberOfBytes = 32; //可以是更大字节数
 			
@@ -579,28 +615,28 @@ $(function() {
 					console.info(web3.fromAscii(asciiString));
 				}
 			}
-	  }
-		
+		}
+
 		//将一个十六进制转为一个十进制的数字
-	  function toDecimal() {
+		function toDecimal() {
 			var hexToNumber = 0x15;
 			console.info('-----------将一个十六进制转为一个十进制的数字-----------');
 			if (hexToNumber != null) {
 				console.info(web3.toDecimal(hexToNumber));
 			}
-	  }
-		
+		}
+
 		//将一个数字，或者字符串形式的数字转为一个十六进制串
-	  function fromDecimal() {
+		function fromDecimal() {
 			var numberToHex = 21;
 			console.info('-----------将一个数字，或者字符串形式的数字转为一个十六进制串-----------');
 			if (numberToHex != null) {
 				console.info(web3.fromDecimal(numberToHex));
 			}
-	  }
-		
+		}
+
 		//以太坊货币单位之间的转换，将wei转换成其它单位
-	  function fromWei() {
+		function fromWei() {
 			var numberOfWei = 1 * Math.pow(10, 18); //1乘以10的18次方
 			var etherUnit = 'ether'; //Gwei Kwei Mwei/babbage/ether/femtoether ether finney/gether/grand/gwei等
 
@@ -608,10 +644,10 @@ $(function() {
 				console.info('-----------以太坊货币单位之间的转换，将wei转换成其它单位-----------');
 				console.info(web3.fromWei(numberOfWei, etherUnit));
 			}
-	  }
-		
+		}
+
 		//将给定资金转换为以wei为单位的数值
-	  function toWei() {
+		function toWei() {
 			var numberOfEthereumUnit = 1;
 			var etherUnit = 'ether';
 
@@ -619,10 +655,10 @@ $(function() {
 				console.info('-----------将给定资金转换为以wei为单位的数值-----------');
 				console.info(web3.toWei(numberOfEthereumUnit, etherUnit));
 			}
-	  }
-	  
-	  //转换一个数字为BigNumber的实例
-	  function toBigNumber() {
+		}
+
+		//转换一个数字为BigNumber的实例
+		function toBigNumber() {
 			var numberToBigNumber = 200000000000000000000001;
 			var output="";
 			console.info('-----------转换一个数字为BigNumber的实例-----------');
@@ -632,10 +668,10 @@ $(function() {
 				console.log(output.toNumber()); // 2.0000000000000002e+23
 				console.log(output.toString(10)); // '200000000000000000000001'
 			}
-	  }
-	  
-	  //检查给定的字符串是否是有效的以太坊地址
-	  function isAddress() {
+		}
+
+		//检查给定的字符串是否是有效的以太坊地址
+		function isAddress() {
 			var hexAddress = '0x0266f961906e34af20b185749bf0f87066741a25';
 			var output="";
 			if (hexAddress != null) {
@@ -643,18 +679,18 @@ $(function() {
 				console.info('-----------检查给定的字符串是否是有效的以太坊地址-----------');
 				console.info("Is an address ="+output);
 			}
-	  }
-		
+		}
+
 		//设置默认交易地址
 		//这些方法要用到： web3.eth.sendTransaction() web3.eth.call()
-	  function setDefaultAccount() {
+		function setDefaultAccount() {
 			var defaultAccount = '0x03183a5c78434860d5e021d98155a55dd577a97a';
 			if (defaultAccount != null && web3.isAddress(defaultAccount)) {
 				console.info('-----------设置默认交易地址-----------');
 				web3.eth.defaultAccount = defaultAccount;
 				console.info(web3.eth.defaultAccount);
 			}
-	  }
+		}
 
 	  
 	  function parseResultObject(result) {
