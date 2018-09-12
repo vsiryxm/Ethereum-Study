@@ -81,8 +81,8 @@ $(function() {
 		if (typeof web3 !== 'undefined') {
 			web3 = new Web3(web3.currentProvider);
 		} else {
-			//web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/q7e6gTMRPm7mtLpodlSD"));
-			web3 = new Web3(new Web3.providers.HttpProvider("HTTP://192.168.1.108:7545"));
+			//web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/q7e6gTMRPm7mtLpodlDS"));
+			web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 		}
 	}
 	
