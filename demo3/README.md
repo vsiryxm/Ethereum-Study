@@ -1,5 +1,10 @@
 ## 撸web3.js接口代码DEMO
 
+### web3.js版本
+web3.js分为两个版本0.20和1.0，1.0目前还在测试阶段，没有稳定版本
+https://cdn.jsdelivr.net/gh/ethereum/web3.js/
+本DEMO以0.20版本为例。
+
 ### 知识点
 
 ```
