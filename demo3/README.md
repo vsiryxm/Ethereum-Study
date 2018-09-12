@@ -48,6 +48,9 @@ setDefaultAccount(); //设置默认交易地址，这些方法要用到： web3.
 建议在chrome console控制台下测试使用。
 如果有报错，需要修改相关方法的参数。
 
+### 参考
+
+https://web3.learnblockchain.cn/0.2x.x/
 
 
 
