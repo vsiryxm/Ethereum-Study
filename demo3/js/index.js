@@ -48,9 +48,17 @@ $(function() {
 		//sendContractTransaction();
 		//signData(); //使用指定帐户签名要发送的数据，帐户需要处于解锁状态
 		sha3(); //使用sha3（keccak-256）哈希算法，计算给定字符串的哈希值。交易哈希就是这么来的，66位
-
+		toHex(); //将字符串转换成Hex值，与toAscii是一对，toHex与fromAscii有点类似，但fromAscii可以填充0到多少位
+		toAscii(); //将HEX字符串转为ASCII字符串，与toHex是一对
+		fromAscii(); //将任何的ASCII码字符串转为HEX字符串，fromAscii与toHex有点类似，但fromAscii可以填充0到多少位
+		fromDecimal(); //将一个数字，或者字符串形式的数字转为一个十六进制串
+		fromWei(); //以太坊货币单位之间的转换，将wei转换成其它单位
+		toWei(); //将给定资金转换为以wei为单位的数值
 		toBigNumber(); //转换一个数字为BigNumber的实例
 		isAddress(); //检查给定的字符串是否是有效的以太坊地址
+		setDefaultAccount(); //设置默认交易地址，这些方法要用到： web3.eth.sendTransaction() web3.eth.call()
+		
+		
 
 	}
 	
@@ -479,201 +487,199 @@ $(function() {
 	  }
 
 
-
 	  //使用指定帐户签名要发送的数据，帐户需要处于解锁状态
 	  function signData() {
-		var fromAccount = '0xd134dd2a3c16fb12885cd6fdc8a03d4bbe5d7031';
-		var dataToSign = 'Hello Simon!';
+			var fromAccount = '0xd134dd2a3c16fb12885cd6fdc8a03d4bbe5d7031';
+			var dataToSign = 'Hello Simon!';
 	  
-		if (fromAccount != null &&
-			dataToSign != null 
-		) {
-		  var encryptedMessage = web3.sha3(dataToSign);
+			if (fromAccount != null && dataToSign != null) {
+		  	var encryptedMessage = web3.sha3(dataToSign);
 	  
-		  web3.eth.sign(fromAccount, encryptedMessage, (err, res) => {
+		  	web3.eth.sign(fromAccount, encryptedMessage, (err, res) => {
 
-			console.info('-----------使用指定帐户签名要发送的数据，帐户需要处于解锁状态-----------');
+					console.info('-----------使用指定帐户签名要发送的数据，帐户需要处于解锁状态-----------');
 
-			var output = "";
-			var rValue = "";
-			var sValue = "";
-			var vValue = "";
+					var output = "";
+					var rValue = "";
+					var sValue = "";
+					var vValue = "";
 	  
-			if (!err) {
-			  output += res;
-			  var r = res.slice(0, 66);
-			  var s = '0x' + res.slice(66, 130);
-			  var v = '0x' + res.slice(130, 132)
-			  v = web3.toDecimal(v)
-	  
-			  // Using ethereumjs-util.js
-			  var msg = EthJS.Util.toBuffer(encryptedMessage);
-			  var pub = EthJS.Util.ecrecover(msg, v, r, s);
-			  var addrBuf = EthJS.Util.pubToAddress(pub);
-			  var addr    = EthJS.Util.bufferToHex(addrBuf);
-	  
-			} else {
-			  output = "Error";
+					if (!err) {
+						output += res;
+						var r = res.slice(0, 66);
+						var s = '0x' + res.slice(66, 130);
+						var v = '0x' + res.slice(130, 132)
+						v = web3.toDecimal(v)
+				
+						// Using ethereumjs-util.js
+						var msg = EthJS.Util.toBuffer(encryptedMessage);
+						var pub = EthJS.Util.ecrecover(msg, v, r, s);
+						var addrBuf = EthJS.Util.pubToAddress(pub);
+						var addr    = EthJS.Util.bufferToHex(addrBuf);
+				
+					} else {
+						output = "Error";
+					}
+					console.info('sig='+output);
+					console.info('r = sig.slice(0, 66) ='+r);
+					console.info("s = '0x' + sig.slice(66, 130) = " + s );
+					console.info("v = '0x' + sig.slice(130, 132)\n v = web3.toDecimal(v) = " + v);
+					console.info("pubKey = ecrecover(msg, v, r, s) = " + addr);
+		  	});
 			}
-			console.info('sig='+output);
-			console.info('r = sig.slice(0, 66) ='+r);
-			console.info("s = '0x' + sig.slice(66, 130) = " + s );
-			console.info("v = '0x' + sig.slice(130, 132)\n v = web3.toDecimal(v) = " + v);
-			console.info("pubKey = ecrecover(msg, v, r, s) = " + addr);
-
-		  })
-		}
 	  }
 
-	  //使用sha3（keccak-256）哈希算法，计算给定字符串的哈希值。交易哈希就是这么来的，66位
+		//使用sha3（keccak-256）哈希算法，计算给定字符串的哈希值。交易哈希就是这么来的，66位
+		//Hello Simon!
+		//sha3=0x5037e1a5e02e081b1b850b130eca7ac17335fdf4c61cc5ff6ae765196fb0d5b3 使用hex 
+		//sha3=0xef82a5fff3a5526183e7c925d562e5faf53a8a1be84dd35facff147fc6966d3d 没有使用hex
 	  function sha3() {
-		var dataToHash = "Hello Simon!";
-		var encoding = "hex";//是否编码，no不编码，hex则编码
-	  
-		var output="";
-		if (dataToHash != null) {
-		  if(encoding == "hex") {
-			output = web3.sha3(dataToHash, {encoding: 'hex'});
-		  } else {
-			output = web3.sha3(dataToHash);
-		  }
-		  console.info('-----------使用sha3（keccak-256）哈希算法，计算给定字符串的哈希值-----------');
-		  console.info('sha3=' + output);
-		}
+			var dataToHash = "Hello Simon!";
+			var encoding = "hex"; //是否编码，no不编码，hex则编码
+
+			if (dataToHash != null) {
+				console.info('-----------使用sha3（keccak-256）哈希算法，计算给定字符串的哈希值-----------');
+				if(encoding == "hex") {
+					console.info('sha3=' + web3.sha3(dataToHash, {encoding: 'hex'}));
+				} else {
+					console.info('sha3=' + web3.sha3(dataToHash));
+				}
+			}
 	  }
-	  
+		
+		//将字符串转换成Hex值，与hexToASCII是一对，toHex与fromAscii有点类似，但fromAscii可以填充0到多少位
 	  function toHex() {
-		var dataToHex = document.getElementById('dataToHex').value;
-		var output="";
-		if (dataToHex != null && dataToHex.length > 0) {
-		  output = web3.toHex(dataToHex);
-		  document.getElementById('toHexResponse').innerHTML = "<br /> toHex= " + output + "<br /><br />";
-		}
+			var dataToHex = 'Hello,Simon!';
+			if (dataToHex != null) {
+				console.info('-----------将字符串转换成Hex值-----------');
+				console.info(web3.toHex(dataToHex));
+			}
 	  }
-	  
-	  function hexToASCII() {
-		var hexString = document.getElementById('hexString').value;
-		var output="";
-		if (hexString != null && hexString.length > 0) {
-		  output = web3.toAscii(hexString);
-		  document.getElementById('toASCIIResponse').innerHTML = "<br /> toASCII= " + output + "<br /><br />";
-		}
+		
+		//将HEX字符串转为ASCII字符串，与toHex是一对
+	  function toAscii() {
+			var hexString = '0x48656c6c6f2c53696d6f6e21';
+			if (hexString != null) {
+				console.info('-----------将HEX字符串转为ASCII字符串-----------');
+				console.info(web3.toAscii(hexString));
+			}
 	  }
-	  
-	  function fromASCII() {
-		var asciiString = document.getElementById('asciiString').value;
-		var numberOfBytes = document.getElementById('numberOfBytes').value;
-	  
-		var output="";
-		if (asciiString != null && asciiString.length > 0 && !isNaN(numberOfBytes)) {
-		  var padding = parseInt(numberOfBytes);
-	  
-		  if(padding > 0) {
-			output = web3.fromAscii(asciiString, padding);
-		  } else {
-			output = web3.fromAscii(asciiString);
-		  }
-	  
-		  document.getElementById('fromASCIIResponse').innerHTML = "<br /> hex string= " + output + "<br /><br />";
-		}
+		
+		//将任何的ASCII码字符串转为HEX字符串，fromAscii与toHex有点类似，但fromAscii可以填充0到多少位
+	  function fromAscii() {
+			var asciiString = 'Hello,Simon!'; //试了一下，如果这里是'21'，转过来的结果是0x3231，而不是fromDecimal返回的0x15
+			var numberOfBytes = 32; //可以是更大字节数
+			
+			if (asciiString != null && !isNaN(numberOfBytes)) {
+				var padding = parseInt(numberOfBytes);
+				console.info('-----------将任何的ASCII码字符串转为HEX字符串-----------');
+				if(padding > 0) {
+					console.info(web3.fromAscii(asciiString, padding));
+				} else {
+					console.info(web3.fromAscii(asciiString));
+				}
+			}
 	  }
-	  
+		
+		//将一个十六进制转为一个十进制的数字
 	  function toDecimal() {
-		var hexToNumber = document.getElementById('hexToNumber').value;
-		var output="";
-		if (hexToNumber != null && hexToNumber.length > 0) {
-		  output = web3.toDecimal(hexToNumber);
-		  document.getElementById('toDecimalResponse').innerHTML = "<br /> decimal= " + output + "<br /><br />";
-		}
+			var hexToNumber = 0x15;
+			console.info('-----------将一个十六进制转为一个十进制的数字-----------');
+			if (hexToNumber != null) {
+				console.info(web3.toDecimal(hexToNumber));
+			}
 	  }
-	  
+		
+		//将一个数字，或者字符串形式的数字转为一个十六进制串
 	  function fromDecimal() {
-		var numberToHex = document.getElementById('numberToHex').value;
-		var output="";
-		if (numberToHex != null && numberToHex.length > 0) {
-		  output = web3.fromDecimal(numberToHex);
-		  document.getElementById('fromDecimalResponse').innerHTML = "<br /> hex= " + output + "<br /><br />";
-		}
+			var numberToHex = 21;
+			console.info('-----------将一个数字，或者字符串形式的数字转为一个十六进制串-----------');
+			if (numberToHex != null) {
+				console.info(web3.fromDecimal(numberToHex));
+			}
 	  }
-	  
+		
+		//以太坊货币单位之间的转换，将wei转换成其它单位
 	  function fromWei() {
-		var numberOfWei = document.getElementById('numberOfWei').value;
-		var etherUnit = document.getElementById('etherUnit').value;
-	  
-		var output="";
-		if (numberOfWei != null && numberOfWei.length > 0 && !isNaN(numberOfWei)) {
-		  output = web3.fromWei(numberOfWei,etherUnit);
-		  document.getElementById('fromWeiResponse').innerHTML = "<br /> "+etherUnit+"= " + output + "<br /><br />";
-		}
+			var numberOfWei = 1 * Math.pow(10, 18); //1乘以10的18次方
+			var etherUnit = 'ether'; //Gwei Kwei Mwei/babbage/ether/femtoether ether finney/gether/grand/gwei等
+
+			if (numberOfWei != null && !isNaN(numberOfWei)) {
+				console.info('-----------以太坊货币单位之间的转换，将wei转换成其它单位-----------');
+				console.info(web3.fromWei(numberOfWei, etherUnit));
+			}
 	  }
-	  
+		
+		//将给定资金转换为以wei为单位的数值
 	  function toWei() {
-		var numberOfEthereumUnit = document.getElementById('numberOfEthereumUnit').value;
-		var etherUnit = document.getElementById('etherUnit2').value;
-	  
-		var output="";
-		if (numberOfEthereumUnit != null && numberOfEthereumUnit.length > 0 && !isNaN(numberOfEthereumUnit)) {
-		  output = web3.toWei(numberOfEthereumUnit,etherUnit);
-		  document.getElementById('toWeiResponse').innerHTML = "<br /> wei= " + output + "<br /><br />";
-		}
+			var numberOfEthereumUnit = 1;
+			var etherUnit = 'ether';
+
+			if (numberOfEthereumUnit != null && !isNaN(numberOfEthereumUnit)) {
+				console.info('-----------将给定资金转换为以wei为单位的数值-----------');
+				console.info(web3.toWei(numberOfEthereumUnit, etherUnit));
+			}
 	  }
 	  
 	  //转换一个数字为BigNumber的实例
 	  function toBigNumber() {
-		var numberToBigNumber = 200000000000000000000001;
-		var output="";
-		console.info('-----------转换一个数字为BigNumber的实例-----------');
-		if (numberToBigNumber != null && !isNaN(numberToBigNumber)) {
-		  output = web3.toBigNumber(numberToBigNumber);
-		  console.info("A BigNumber = " + output.toString(10));
-		  console.log(output.toNumber()); // 2.0000000000000002e+23
-		  console.log(output.toString(10)); // '200000000000000000000001'
-		}
+			var numberToBigNumber = 200000000000000000000001;
+			var output="";
+			console.info('-----------转换一个数字为BigNumber的实例-----------');
+			if (numberToBigNumber != null && !isNaN(numberToBigNumber)) {
+				output = web3.toBigNumber(numberToBigNumber);
+				console.info("A BigNumber = " + output.toString(10));
+				console.log(output.toNumber()); // 2.0000000000000002e+23
+				console.log(output.toString(10)); // '200000000000000000000001'
+			}
 	  }
 	  
 	  //检查给定的字符串是否是有效的以太坊地址
 	  function isAddress() {
-		var hexAddress = '0x0266f961906e34af20b185749bf0f87066741a25';
-		var output="";
-		if (hexAddress != null) {
-		  output = web3.isAddress(hexAddress);
-		  console.info('-----------检查给定的字符串是否是有效的以太坊地址-----------');
-		  console.info("Is an address ="+output);
-		}
+			var hexAddress = '0x0266f961906e34af20b185749bf0f87066741a25';
+			var output="";
+			if (hexAddress != null) {
+				output = web3.isAddress(hexAddress);
+				console.info('-----------检查给定的字符串是否是有效的以太坊地址-----------');
+				console.info("Is an address ="+output);
+			}
 	  }
-	  
-	  function setDefaultAccount(){
-		var defaultAccount = document.getElementById('defaultAccount').value;
-		if (defaultAccount != null && web3.isAddress(defaultAccount)) {
-		  web3.eth.defaultAccount = defaultAccount;
-		  document.getElementById('displayDefaultAccount').innerHTML = "Default account is now: " +web3.eth.defaultAccount;
-		}
+		
+		//设置默认交易地址
+		//这些方法要用到： web3.eth.sendTransaction() web3.eth.call()
+	  function setDefaultAccount() {
+			var defaultAccount = '0x03183a5c78434860d5e021d98155a55dd577a97a';
+			if (defaultAccount != null && web3.isAddress(defaultAccount)) {
+				console.info('-----------设置默认交易地址-----------');
+				web3.eth.defaultAccount = defaultAccount;
+				console.info(web3.eth.defaultAccount);
+			}
 	  }
 
 	  
-	  function parseResultObject(res){
-		var output = "";
-		for (var key in res) {
-		  if (res.hasOwnProperty(key)) {
-			if( Object.prototype.toString.call( res[key] ) === '[object Array]' ) {
-			  var arrObj = res[key];
-			  if(arrObj.length == 0) {
-				output += key + " -> []\n";
-			  } else {
-				for(var i=0; i < arrObj.length; i++){
-				  for (var key2 in arrObj[i]) {
-					if (arrObj[i].hasOwnProperty(key2)) {
-					  output += key + "["+i+"]." + key2 + "-> " + arrObj[i][key2] + "\n";
+	  function parseResultObject(result) {
+			var output = "";
+			for (var key in result) {
+				if (result.hasOwnProperty(key)) {
+				if( Object.prototype.toString.call( result[key] ) === '[object Array]' ) {
+					var arrObj = result[key];
+					if(arrObj.length == 0) {
+						output += key + " -> []\n";
+					} else {
+						for(var i=0; i < arrObj.length; i++){
+							for (var key2 in arrObj[i]) {
+							if (arrObj[i].hasOwnProperty(key2)) {
+								output += key + "["+i+"]." + key2 + "-> " + arrObj[i][key2] + "\n";
+							}
+							}
+						}
 					}
-				  }
+				} else {
+					output += key + " -> " + result[key] + "\n";
 				}
-			  }
-			} else {
-			  output += key + " -> " + res[key] + "\n";
+				}
 			}
-		  }
-		}
-		return output;
+			return output;
 	  }
 	
 });
