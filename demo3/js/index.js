@@ -8,10 +8,10 @@ $(function() {
 		if (typeof web3 !== 'undefined') {
 		  // Use Mist/MetaMask's provider
 		  //window.web3 = new Web3(web3.currentProvider);
-		  window.web3 = web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/q7e6gTMRPm7mtLpodlSD"));
 		} else {
 		  console.log('No web3? You should consider trying MetaMask!')
 		  // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
+		  // https://rinkeby.infura.io/q7e6gTMRPm7mtLpodlDS
 		  window.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 		  //window.web3 = new Web3(new Web3.providers.HttpProvider("https://proxy.mobilefish.com:9070"));
 		}
