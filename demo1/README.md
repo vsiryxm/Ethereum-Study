@@ -127,7 +127,8 @@ contractInstance.name(function(error, result) {
 });
 ```
 
-
+参考：
+https://web3js.readthedocs.io/en/1.0/web3-eth-contract.html
 
 
 
