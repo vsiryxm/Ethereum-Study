@@ -130,7 +130,8 @@ contractInstance.name(function(error, result) {
 参考：
 https://web3js.readthedocs.io/en/1.0/web3-eth-contract.html
 
-
+如何获取pending状态中的交易？
+subscribe("pendingTransactions")
 
 
 
